@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Main extends CI_Controller {
+class Home extends CI_Controller {
 
 	function __construct()
 	{
@@ -16,21 +16,34 @@ class Main extends CI_Controller {
 	function index(){
 		
 		
-		if($this->session->userdata('logged_in')){
-			
-			//configura menu
-			$data['menu']=array("Treino"=>"main/#", "Assessoria"=>"main/#", "Usuários"=>"main/usuario", "Sair"=>"home/logout", "?"=>"main/#");
-			
-			//Main page 
-			$this->load->view('header', $data);
-			$this->load->view('main');
-			$this->load->view('footer');
-			
-			
-		} else {
-			//If no session, redirect to login page
-			redirect('home', 'refresh');
-		}
+	   //This method will have the credentials validation
+	   
+	
+	   $this->form_validation->set_rules('username', 'Username', 'trim|required|valid_email',
+	   		 array('required' => 'Campo necessário',
+	   		 		'valid_email' => 'Por favor use um email válido')   		 		
+	   		 );
+	   $this->form_validation->set_rules('password', 'Password', 'trim|required|callback_check_database',
+	   		 array('required' => 'Campo necessário')   		 		
+	   		 );
+	
+	   if($this->form_validation->run() == FALSE)
+	   {
+	     
+	   	 //Field validation failed.  Preparing menu itens
+	   	 $data['menu']=array("Participe"=>"main/cadastro", "Entrar"=>"main", "?"=>"#");
+	     
+	     //User redirected to login page
+	   	// $this->load->view('header',$data);
+	     $this->load->view('home');
+	    // $this->load->view('footer');
+	   }
+	   else
+	   {
+	     //Go to private area
+	     redirect('main', 'refresh');
+	   }
+	   
 	}
 	
 	
@@ -74,7 +87,7 @@ class Main extends CI_Controller {
 		if($this->form_validation->run() == FALSE)
 		{
 			//Field validation failed.  Preparing menu itens
-			$data['menu']=array("Treino"=>"#", "Assessoria"=>"#", "Usuários"=>"main/usuario", "Sair"=>"home/logout", "?"=>"#");
+			$data['menu']=array("Participe"=>"main/cadastro", "Entrar"=>"main", "?"=>"#");
 			
 			//User redirected to login page
 			$this->load->view('header', $data);
@@ -96,8 +109,55 @@ class Main extends CI_Controller {
 	
 	}
 	
+	
+	function check_database($password)
+	{
+		//Field validation succeeded.  Validate against database
+		$username = $this->input->post('username');
+	
+		//query the database
+		$result = $this->user_model->login($username, $password);
+	    
+		if($result)
+		{
+			$sess_array = array();
+			foreach($result as $row)
+			{
+				$sess_array = array(
+						'id' => $row->id_usuario,
+						'username' => $row->desc_usuario,
+						'tipo_usuario' => $row->id_tipo_usuario
+				);
+				$this->session->set_userdata('logged_in', $sess_array);
+			}
+			return TRUE;
+		}
+		else
+		{
+			$this->form_validation->set_message('check_database', 'Nome de email ou senha inválidos');
+			return false;
+		}
+	}
+	
+	
+	function logout(){
+		$this->session->unset_userdata('logged_in');
+		@session_destroy();
+		redirect('main', 'refresh');
+	}
+	
+		
+	
+	function edit_field_callback_1($value, $primary_key){
+		return '<input type="password" maxlength="50" value="" name="pw_user">';
+	}
+        
+    function encrypt_password_callback($post_array, $primary_key = null){
+        $post_array['passwd_usuario'] = sha1($post_array['passwd_usuario']);
+        return $post_array;
+    }
     
-	function usuario(){
+	function home(){
 		
 		if($this->session->userdata('logged_in')){
 		
@@ -105,7 +165,7 @@ class Main extends CI_Controller {
 			
 			$this->load->library('pagination');
 			
-			$config['base_url'] = site_url() . "/main/usuario/";
+			$config['base_url'] = site_url() . "/Main/home/";
 			$config['total_rows'] = $this->user_model->record_count($session_data['tipo_usuario']);
 			$config['per_page'] = 8;
 			
@@ -140,11 +200,11 @@ class Main extends CI_Controller {
 			$data['username'] = $session_data['username'];
 			
 			//configura menu
-			$data['menu']=array("Treino"=>"main/usuario/#", "Assessoria"=>"main/usuario/#", "Usuários"=>"main/usuario", "Sair"=>"home/logout", "?"=>"main/usuario/#");
+			$data['menu']=array("Treino"=>"#", "Assessoria"=>"#", "Sair"=>"main/logout", "?"=>"#");
 			//$data['lista'] = $this->user_model->listUser($session_data['tipo_usuario']);
 			
 			$this->load->view('header', $data);
-			$this->load->view('usuario');
+			$this->load->view('home');
 			$this->load->view('footer');
 
 			

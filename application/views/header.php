@@ -42,7 +42,7 @@
 	
 		<div class="row">
 	  		<div class="col-xs-3 col-lg-3">
-	  			<h4>Runbbit</h4>
+	  			<a href="<?php echo site_url('main'); ?>"><h4>Runbbit</h4></a>
 	  		</div>
 	  		<div class="col-xs-9 col-lg-9 pull-right">
 	  			<h4 align="right">

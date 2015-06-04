@@ -16,13 +16,26 @@ h1, h2, h3, h3, h5, h6 {
 	
 */	
 
-body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4 {
-  background: #c51162 !important;
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4 {
+ /* background: #c51162 !important; */
   color: white;	
   font-family: "RobotoDraft", "Roboto", sans-serif;
   font-weight: 700;
 }	
 	
+	
+body {	
+	background:url('../img/bg_full.jpg')no-repeat;
+	background-size:100%;
+	height: 140px;
+	display:block;
+	padding:0 !important;
+	margin:0;	
+	color: white;	
+    font-family: "RobotoDraft", "Roboto", sans-serif;
+    font-weight: 700;
+}
+
 
 hr {
       color: #f9ec43; 

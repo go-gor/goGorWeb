@@ -30,6 +30,85 @@ Class User_model extends CI_Model
  	 
  }
  
+ 
+ function listUser($id){
+ 
+ 	//print_r($id); die();
+ 	//lista usuário
+ 	$this->db->select ('usuario.id_usuario as idusuario, usuario.*, dados_usuario.*, assessoria.*, tipo_usuario.*');
+ 	$this->db->from('usuario');
+ 	$this->db->join('tipo_usuario', 'usuario.id_tipo_usuario = tipo_usuario.id_tipo_usuario');
+ 	$this->db->join('dados_usuario', 'usuario.id_usuario = dados_usuario.id_usuario', 'left');
+ 	$this->db->join('assessoria', 'usuario.id_assessoria = assessoria.id_assessoria', 'left');
+ 	
+ 	// se não for runbbit admim listar somente os da assessoria
+ 	if ($id!=4){
+ 		//seleciona a assessoria do usuário
+ 		$id_assessoria = 0;
+ 		// apenas assessoria escolhida
+ 		$this->db->where("usuario.id_assessoria",$id_assessoria);
+ 	}
+ 	
+ 	$query = $this->db->get();
+ 	//print_r( $query);
+ 	
+ 	if($query->num_rows()>0) {
+ 	
+ 		//return $query->result_array();
+ 		return $query;
+ 		
+ 	} else {
+ 	
+ 		return false;
+ 	}
+ 		
+ }
+ 
+ 
+ function fetch_record($id, $limit, $start)
+ {
+ 	$this->db->limit($limit, $start);
+ 	$query = $this->listUser($id);
+ 	//$query = $this->db->get('usuario');
+ 	return ($query->num_rows() > 0)  ? $query->result() : FALSE;
+ 
+ }
+ 
+ function record_count($id)
+ {
+ //lista usuário
+ 	$this->db->select ('usuario.id_usuario as idusuario, usuario.*, dados_usuario.*, assessoria.*, tipo_usuario.*');
+ 	$this->db->from('usuario');
+ 	$this->db->join('tipo_usuario', 'usuario.id_tipo_usuario = tipo_usuario.id_tipo_usuario');
+ 	$this->db->join('dados_usuario', 'usuario.id_usuario = dados_usuario.id_usuario', 'left');
+ 	$this->db->join('assessoria', 'usuario.id_assessoria = assessoria.id_assessoria', 'left');
+ 	
+ 	// se não for runbbit admim listar somente os da assessoria
+ 	if ($id!=4){
+ 		//seleciona a assessoria do usuário
+ 		$id_assessoria = 0;
+ 		// apenas assessoria escolhida
+ 		$this->db->where("usuario.id_assessoria",$id_assessoria);
+ 	}
+ 	
+ 	return $this->db->count_all_results();
+ 	//return $this->db->count_all('usuario');
+ }
+ 
+ function getUserType($id){
+ 	
+ 	$query = $this->db->get_where('tb_produto', array('isbn_produto' => $id));
+ 	
+ 	if($query->num_rows()>0){
+ 	
+ 		$res= $query->result();
+ 		return $res[0]->titulo_produto;
+ 	
+ 	}
+ 	 
+ 	return "";
+ }
+ 
  function sendInvite($email){
  	
  	$this->load->library('email');
